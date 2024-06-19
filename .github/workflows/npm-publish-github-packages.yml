@@ -14,10 +14,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 18.x
       - run: npm ci
+      - name: Configure npm to use GitHub package registry
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" > ~/.npmrc
 
-  publish-gpr:
+  publish:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -27,9 +29,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 18.x
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
-      - run: npm publish
+      - name: Publish to GitHub package
         env:
-          NODE_AUTH_TOKEN: ${{secrets.ACCESS_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: npm publish
